@@ -25,6 +25,9 @@ public class AlgoMapReduce extends Configured implements Tool {
 
 	public static String header = "";
 
+	// Mapper
+	// create a key with solver name and time.
+	// write out only completed instances
 	public static class InstanceCountMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
 		@Override
@@ -45,6 +48,8 @@ public class AlgoMapReduce extends Configured implements Tool {
 		}
 	}
 
+	// Reducer
+	// add an index per solver on every completed instance. e.g. index solver\t time
 	public static class InstanceCountReduce extends Reducer<Text, DoubleWritable, LongWritable, Text> {
 
 		private static String current = "";
@@ -73,6 +78,7 @@ public class AlgoMapReduce extends Configured implements Tool {
 		}
 	}
 
+	// Sort instances first by solver and than by time.
 	public static class InstanceCountSort extends WritableComparator {
 		public InstanceCountSort() {
 			super(Text.class, true);
@@ -96,6 +102,7 @@ public class AlgoMapReduce extends Configured implements Tool {
 
 	}
 
+	// Just a split
 	public static class InstanceMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
 
 		@Override
@@ -107,6 +114,9 @@ public class AlgoMapReduce extends Configured implements Tool {
 
 	}
 
+	// Reducer
+	// write the header to the output
+	// for every index , for every value, concatenate times and write out.
 	public static class InstanceReduce extends Reducer<LongWritable, Text, Text, Text> {
 
 		@Override
@@ -173,6 +183,7 @@ public class AlgoMapReduce extends Configured implements Tool {
 
 		new Thread(jobController).start();
 		while (!jobController.allFinished())
+			// silly solution
 			Thread.sleep(100);
 		System.exit(job2.waitForCompletion(true) ? 0 : 1);
 		return 0;
